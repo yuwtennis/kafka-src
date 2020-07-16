@@ -106,4 +106,44 @@ public class MirrorConnectorConfigTest {
         assertTrue(config.topicFilter().shouldReplicateTopic("topic2"));
         assertFalse(config.topicFilter().shouldReplicateTopic("topic3"));
     }
+<<<<<<< HEAD
+=======
+
+    @Test
+    public void testConsumerRestOffsetLatestConfs() {
+        MirrorConnectorConfig config = new MirrorConnectorConfig(makeProps("consumer.auto.offset.reset", "latest"));
+        Map<String, Object> sourceConf = config.sourceConsumerConfig();
+        assertEquals("latest", sourceConf.get("auto.offset.reset"));
+    }
+
+    @Test
+    public void testConsumerDefaultConfs() {
+        MirrorConnectorConfig config = new MirrorConnectorConfig(makeProps());
+        Map<String, Object> sourceConf = config.sourceConsumerConfig();
+        assertEquals("earliest", sourceConf.get("auto.offset.reset"));
+    }
+
+    @Test
+    public void testNonMutationOfConfigDef() {
+        Collection<String> taskSpecificProperties = Arrays.asList(
+            MirrorConnectorConfig.TASK_TOPIC_PARTITIONS,
+            MirrorConnectorConfig.TASK_CONSUMER_GROUPS
+        );
+
+        // Sanity check to make sure that these properties are actually defined for the task config,
+        // and that the task config class has been loaded and statically initialized by the JVM
+        ConfigDef taskConfigDef = MirrorTaskConfig.TASK_CONFIG_DEF;
+        taskSpecificProperties.forEach(taskSpecificProperty -> assertTrue(
+            taskSpecificProperty + " should be defined for task ConfigDef",
+            taskConfigDef.names().contains(taskSpecificProperty)
+        ));
+
+        // Ensure that the task config class hasn't accidentally modified the connector config
+        ConfigDef connectorConfigDef = MirrorConnectorConfig.CONNECTOR_CONFIG_DEF;
+        taskSpecificProperties.forEach(taskSpecificProperty -> assertFalse(
+            taskSpecificProperty + " should not be defined for connector ConfigDef",
+            connectorConfigDef.names().contains(taskSpecificProperty)
+        ));
+    }
+>>>>>>> 2eb10ecac... KAFKA-10160: Kafka MM2 consumer configuration (#8921)
 }
